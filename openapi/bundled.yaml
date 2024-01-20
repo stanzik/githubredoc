@@ -890,102 +890,25 @@ x-webhooks:
         '200':
           description: Return a 200 status to indicate that the data was received successfully
 components:
+  securitySchemes:
+    petstore_auth:
+      description: |
+        Get access to data while protecting your account credentials.
+        OAuth2 is also a safer and more secure way to give you access.
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/api/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      description: |
+        For this sample, you can use the api key `special-key` to test the authorization filters.
+      type: apiKey
+      name: api_key
+      in: header
   schemas:
-    ApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        type:
-          type: string
-        message:
-          type: string
-    Order:
-      type: object
-      properties:
-        id:
-          description: Order ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        petId:
-          description: Pet ID
-          allOf:
-            - $ref: '#/components/schemas/Id'
-        quantity:
-          type: integer
-          format: int32
-          minimum: 1
-          default: 1
-        shipDate:
-          description: Estimated ship date
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          description: Indicates whenever order was completed or not
-          type: boolean
-          default: false
-          readOnly: true
-        requestId:
-          description: Unique Request Id
-          type: string
-          writeOnly: true
-      xml:
-        name: Order
-    User:
-      type: object
-      properties:
-        id:
-          $ref: '#/components/schemas/Id'
-        pet:
-          oneOf:
-            - $ref: '#/components/schemas/Pet'
-            - $ref: '#/components/schemas/Tag'
-        username:
-          description: User supplied username
-          type: string
-          minLength: 4
-          example: John78
-        firstName:
-          description: User first name
-          type: string
-          minLength: 1
-          example: John
-        lastName:
-          description: User last name
-          type: string
-          minLength: 1
-          example: Smith
-        email:
-          description: User email address
-          type: string
-          format: email
-          example: john.smith@example.com
-        password:
-          type: string
-          description: User password, MUST contain a mix of upper and lower case letters, as well as digits
-          format: password
-          minLength: 8
-          pattern: /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/
-          example: drowssaP123
-        phone:
-          description: User phone number in international format
-          type: string
-          pattern: /^\+(?:[0-9]-?){6,14}[0-9]$/
-          example: +1-202-555-0192
-        userStatus:
-          description: User status
-          type: integer
-          format: int32
-      xml:
-        name: User
     Pet:
       type: object
       required:
@@ -997,6 +920,9 @@ components:
           cat: '#/components/schemas/Cat'
           dog: '#/components/schemas/Dog'
           bee: '#/components/schemas/HoneyBee'
+          Cat: '#/components/schemas/Cat'
+          Dog: '#/components/schemas/Dog'
+          HoneyBee: '#/components/schemas/HoneyBee'
       properties:
         id:
           externalDocs:
@@ -1117,18 +1043,99 @@ components:
       xml:
         name: Category
     Tag:
+      description: Representation of a tag
       type: object
       properties:
         id:
-          description: Tag ID
+          description: Tag id
+          type: integer
+          format: int64
+        name:
+          type: string
+        bg_color_hex:
+          type: string
+          nullable: true
+        text_color_hex:
+          type: string
+          nullable: true
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    Order:
+      type: object
+      properties:
+        id:
+          description: Order ID
           allOf:
             - $ref: '#/components/schemas/Id'
-        name:
-          description: Tag name
+        petId:
+          description: Pet ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        shipDate:
+          description: Estimated ship date
           type: string
-          minLength: 1
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          enum:
+            - placed
+            - approved
+            - delivered
+        complete:
+          description: Indicates whenever order was completed or not
+          type: boolean
+          default: false
+          readOnly: true
+        requestId:
+          description: Unique Request Id
+          type: string
+          writeOnly: true
       xml:
-        name: Tag
+        name: Order
+    User:
+      description: The representation of a user
+      type: object
+      properties:
+        type_of:
+          type: string
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        name:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        twitter_username:
+          type: string
+        github_username:
+          type: string
+        website_url:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        joined_at:
+          type: string
+        profile_image:
+          type: string
   requestBodies:
     Pet:
       content:
@@ -1156,31 +1163,6 @@ components:
               $ref: '#/components/schemas/User'
       description: List of user object
       required: true
-  securitySchemes:
-    petstore_auth:
-      description: |
-        Get access to data while protecting your account credentials.
-        OAuth2 is also a safer and more secure way to give you access.
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: http://petstore.swagger.io/api/oauth/dialog
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      description: |
-        For this sample, you can use the api key `special-key` to test the authorization filters.
-      type: apiKey
-      name: api_key
-      in: header
-  examples:
-    Order:
-      value:
-        quantity: 1
-        shipDate: '2018-10-19T16:46:45Z'
-        status: placed
-        complete: false
 x-tagGroups:
   - name: General
     tags:
